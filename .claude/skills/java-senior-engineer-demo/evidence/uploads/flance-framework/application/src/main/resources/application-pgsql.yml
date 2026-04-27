@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: jdbc:kingbase8://192.168.50.122:54321/RLZY_COLLECT
+    username: SYSTEM
+    password: 123456
+    driver-class-name: com.kingbase8.Driver
+    hikari:
+      maximum-pool-size: 50
+      minimum-idle: 20
+      connection-timeout: 30000
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+      naming:
+        strategy: org.hibernate.cfg.ImprovedNamingStrategy
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.Kingbase8Dialect

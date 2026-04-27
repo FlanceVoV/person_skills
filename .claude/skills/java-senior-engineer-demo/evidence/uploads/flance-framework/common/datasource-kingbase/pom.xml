@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.flance.framework.common</groupId>
+        <artifactId>common</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>datasource-kingbase</artifactId>
+    <name>datasource-kingbase</name>
+    <description>datasource-kingbase</description>
+
+    <properties>
+        <java.version>25</java.version>
+        <hibernate-4.version>4</hibernate-4.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.flance.framework.common</groupId>
+            <artifactId>datasource</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.kingbase8</groupId>
+            <artifactId>kingbase8</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>hibernate-4</groupId>
+            <artifactId>hibernate-4</artifactId>
+            <version>${hibernate-4.version}</version>
+        </dependency>
+
+    </dependencies>
+
+
+</project>

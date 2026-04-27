@@ -6,10 +6,14 @@ venv/
 .env
 .env.*.local
 
+# Windows embed 打包缓存 (zip / get-pip)
+scripts/cache/
+
 # Node
 node_modules/
 web/.next/
 out/
+build/
 .next/
 *.tsbuildinfo
 

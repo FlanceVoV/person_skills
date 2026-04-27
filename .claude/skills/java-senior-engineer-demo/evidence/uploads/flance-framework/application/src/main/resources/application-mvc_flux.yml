@@ -1,0 +1,19 @@
+server:
+  servlet:
+    context-path: /api
+  webflux:
+    context-path: /webflux
+spring:
+  main:
+    web-application-type: none
+ai:
+  netty-port: 8081
+  tomcat-port: 8080
+  controller-packages:
+    - com.flance.**.controller
+  webflux-packages:
+    - com.flance.**.webflux
+  mvc-dispatcher-servlet-mapping:
+    - /
+  webflux-dispatcher-servlet-mapping:
+    - /

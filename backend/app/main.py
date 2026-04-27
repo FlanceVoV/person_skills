@@ -1,12 +1,16 @@
 from __future__ import annotations
 
 import io
+import json
+import re
 import zipfile
 from pathlib import PurePosixPath
+from typing import Any
 
 from fastapi import FastAPI, File, Form, HTTPException, Response, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
+from . import paths
 from .package_builder import SkillFormPayload, build_skill_zip, slugify
 
 app = FastAPI(
@@ -29,9 +33,62 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
+def _example_id_ok(example_id: str) -> str | None:
+    cleaned = (example_id or "").strip()
+    if not cleaned or not re.match(r"^[A-Za-z0-9._-]+$", cleaned):
+        return None
+    return cleaned
+
+
+@app.get("/api/examples")
+def list_examples() -> dict[str, Any]:
+    """与旧 Next /api/examples 同构，供页面加载 fixtures 列表。"""
+    fdir = paths.fixtures_dir()
+    if not fdir.is_dir():
+        return {"items": []}
+    items: list[dict[str, str]] = []
+    for p in sorted(fdir.glob("*.json")):
+        eid = p.stem
+        if not eid or not re.match(r"^[A-Za-z0-9._-]+$", eid):
+            continue
+        rel = p.name
+        try:
+            raw = json.loads(p.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            items.append({"id": eid, "filename": rel})
+            continue
+        row: dict[str, str] = {
+            "id": eid,
+            "filename": rel,
+        }
+        if isinstance(raw, dict):
+            if isinstance(raw.get("display_name"), str):
+                row["display_name"] = raw["display_name"]
+            if isinstance(raw.get("skill_id"), str):
+                row["skill_id"] = raw["skill_id"]
+        items.append(row)
+    return {"items": items}
+
+
+@app.get("/api/examples/{example_id}")
+def get_example_json(example_id: str) -> dict[str, Any]:
+    """返回单个 fixture JSON 原文。"""
+    ok = _example_id_ok(example_id)
+    if not ok:
+        raise HTTPException(status_code=400, detail="Bad example id")
+    fp = paths.fixtures_dir() / f"{ok}.json"
+    if not fp.is_file():
+        raise HTTPException(status_code=404, detail="Not found")
+    try:
+        return json.loads(fp.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
+
 @app.post("/api/build-skill-zip")
 async def build_skill_zip_ep(
     display_name: str = Form(..., description="展示名称，用于包内与 zip 文件名 slug"),
+    explicit_identity: str = Form(..., description="身份明确：具体、唯一的执行主体，全文与此锚定"),
     basic_info: str = Form(""),
     persona: str = Form(""),
     chat_records: str = Form(""),
@@ -55,6 +112,8 @@ async def build_skill_zip_ep(
 ):
     if not (display_name or "").strip():
         raise HTTPException(status_code=400, detail="display_name 不能为空")
+    if not (explicit_identity or "").strip():
+        raise HTTPException(status_code=400, detail="身份明确（explicit_identity）不能为空；请填写具体身份，勿用泛指")
 
     def _zip_prefix(filename: str) -> str:
         base = (filename or "").strip().rsplit("/", 1)[-1].rsplit("\\", 1)[-1]
@@ -137,6 +196,7 @@ async def build_skill_zip_ep(
 
     payload = SkillFormPayload(
         display_name=display_name.strip(),
+        explicit_identity=(explicit_identity or "").strip(),
         basic_info=basic_info or "",
         persona=persona or "",
         chat_records=chat_records or "",
@@ -171,4 +231,16 @@ async def build_skill_zip_ep(
             "Content-Disposition": f'attachment; filename="{filename}"',
             "X-Skill-Slug": slugify(payload.display_name),
         },
+    )
+
+
+# 静态导出的前端由 FastAPI 同端口提供，勿再独立启动 Node
+_static = paths.static_export_dir()
+if _static is not None:
+    from fastapi.staticfiles import StaticFiles
+
+    app.mount(
+        "/",
+        StaticFiles(directory=str(_static), html=True),
+        name="front",
     )

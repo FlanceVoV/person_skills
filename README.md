@@ -309,7 +309,7 @@ NEXT_PUBLIC_API_BASE=http://你的主机:端口
 ```
 
 **表单字段**（与 `SKILL.md` 章节对齐，均为 `multipart` 文本字段，除 `files`）：  
-`display_name`、`skill_id`、`version`、`purpose_description`、`activation_hints`、`in_scope`、`out_of_scope`、`basic_info`、`latest_updates`、`role_play_rules`、`persona`、`chat_records`、`work_achievements`、`analyst_rules`、`workflow`、`decision_heuristics`、`timeline`、`values_antipatterns`、`intellectual_lineage`、`honesty_supplement`；附件字段名 **`files`**（可多选）。
+`display_name`、**`explicit_identity`（必填，身份明确／唯一执行主体锚定）**、`skill_id`、`version`、`purpose_description`、`activation_hints`、`in_scope`、`out_of_scope`、`basic_info`、`latest_updates`、`role_play_rules`、`persona`、`chat_records`、`work_achievements`、`analyst_rules`、`workflow`、`decision_heuristics`、`timeline`、`values_antipatterns`、`intellectual_lineage`、`honesty_supplement`；附件字段名 **`files`**（可多选）。
 
 **Windows 排错**：若 `npm run build` / `npm run dev` 报 WSL/bash 相关错误，可用 Node 直调（已在 `package.json` 中显式用 `node .../next`；若 `npm` 仍劫持 shell，可检查 `npm config get script-shell`），或在项目 `web` 下执行：
 
@@ -320,5 +320,27 @@ node node_modules\next\dist\bin\next dev -p 3000
 
 ### 10.4 技能包内容（当前实现）
 
-`{slug}-skill.zip` **根目录**（无 `skills/…` 嵌套）：`manifest.json`（含 `name` 与 `entry: SKILL.md`）、`contract.json`、`evidence/*`、`references/research/README.txt`（与参考案例的调研目录同构）及主文件 **`SKILL.md`**。`SKILL.md` 结构对齐参考：YAML 的 `name` / `description` 头、 **激活确认**、路径 A/B、**Agentic 工作流**、身份卡、心智模型、启发式、表达 DNA、时间线、价值观、智识谱系、诚实边界、附录等；正文由表单与占位组成，可手改后固定。
+`{slug}-skill.zip` **根目录**（无 `skills/…` 嵌套）：`manifest.json`（含 `name` 与 `entry: SKILL.md`）、`contract.json`、`evidence/*`、`references/research/README.txt`（与参考案例的调研目录同构）及主文件 **`SKILL.md`**。`SKILL.md` 结构对齐参考：YAML 的 `name` / `description` / `explicit_identity` 头、 **身份锚定（唯一执行主体）**、**激活确认**、路径 A/B、**Agentic 工作流**、身份卡、心智模型、启发式、表达 DNA、时间线、价值观、智识谱系、诚实边界、附录等；正文由表单与占位组成，可手改后固定。
+
+### 10.5 Windows 脚本（`scripts/`）
+
+| 脚本 | 作用 |
+|------|------|
+| `dev-setup.bat` | 后台：`backend\.venv` + `pip install -r requirements.txt`；前台：`web` 下 `npm install` |
+| `dev-start.bat` | 新开两个窗口分别启动 FastAPI（`:8000`）与 Next 开发服（`:3000`），并打开浏览器访问前台 |
+| `dev-all.bat` | 依次执行 `dev-setup.bat` + `dev-start.bat` |
+| `dev-stop.bat` | 尝试结束占用 **8000 / 3000** 端口的进程（开发机清理用） |
+| `dev-restart.bat` | `dev-stop.bat` → 等待 2 秒 → `dev-start.bat` |
+| `pack-build.bat` | 在仓库根目录生成 **`build/`**：前台为 Next **静态导出**（`web/out` → `build/dist`，**不含** `node_modules`），`fixtures` 拷至 `build/fixtures`，后台为 `build/backend` + `requirements.txt`；**并内嵌** Windows 官方 [embeddable](https://docs.python.org/3/using/windows.html#the-embeddable-package) Python 3.12 x64 到 `build/python-embed`，用 pip 将依赖装入该解释器，并复制**相对路径**启动脚本：`start.bat` / `stop.bat` / `restart.bat` / `_run-backend.cmd`（**仅** FastAPI；**不**起独立 Node/Next 服务） |
+
+打包目录 **`build/`** 用法：将整个 `build` 目录拷贝到目标机后，**`start.bat`** 启动、**`stop.bat`** 结束 8000 上监听进程、**`restart.bat`** 先停再起；各脚本以**自身所在目录**为包根，请保持 `dist` / `backend` / `python-embed` 等子目录与脚本同级。详情见同目录下 **`README-Pack.txt`**。  
+- **目标机不需要安装 Node**；`build/dist` 为纯静态资源，由 FastAPI 在 **:8000** 挂载，与 `/api` 同端口。  
+- **目标机可不再安装 Python**：`pack-build` 成功时 `build\python-embed\` 自带解释器与依赖，`_run-backend.cmd` 会优先使用。  
+- 若打包时 `set PACK_SKIP_PYTHON_EMBED=1` 并重新 `pack-build.bat`，则不内嵌解释器，需目标机自装 Python 以走 venv 逻辑。  
+- 内嵌为 **x64/amd64** 解释器，与 32 位/ARM 不兼容。  
+- 联网打包时，embed 与 get-pip 会缓存到 **`scripts\cache\embed\`**，便于复用/离线。  
+
+运行态：`start.bat` 只启后端，浏览器打开 **`http://127.0.0.1:8000`**（与本地开发「前后端分口」是两套方式；开发仍见 `dev-start.bat`）。打包构建前可将 `NEXT_PUBLIC_API_BASE` 设为空，使前端在 8000 上走同源 API。
+
+说明：`pack-build.bat` 内使用 `node ...\next build` 调用构建，避免个别环境下 `npm run build` 被错误指向 WSL/bash 导致失败。
 

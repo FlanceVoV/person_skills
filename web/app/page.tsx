@@ -1,13 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-
-const defaultApi = "http://127.0.0.1:8000";
-const API_BASE =
-  (typeof process !== "undefined" && process.env.NEXT_PUBLIC_API_BASE) || defaultApi;
+import { apiUrl, getApiBase } from "@/lib/apiBase";
 
 export default function Home() {
   const [displayName, setDisplayName] = useState("");
+  const [explicitIdentity, setExplicitIdentity] = useState("");
   const [skillId, setSkillId] = useState("");
   const [version, setVersion] = useState("1.0.0");
   const [purposeDescription, setPurposeDescription] = useState("");
@@ -47,7 +45,7 @@ export default function Home() {
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch("/api/examples", { cache: "no-store" });
+        const res = await fetch(apiUrl("/api/examples"), { cache: "no-store" });
         if (!res.ok) return;
         const data = (await res.json()) as { items?: unknown };
         const items = Array.isArray((data as any).items) ? ((data as any).items as any[]) : [];
@@ -77,7 +75,10 @@ export default function Home() {
     if (!exampleId) return;
     setMessage(null);
     try {
-      const res = await fetch(`/api/examples/${encodeURIComponent(exampleId)}`, { cache: "no-store" });
+      const res = await fetch(
+        apiUrl(`/api/examples/${encodeURIComponent(exampleId)}`),
+        { cache: "no-store" }
+      );
       if (!res.ok) {
         const t = await res.text();
         setMessage({ type: "err", text: t || `加载示例失败 ${res.status}` });
@@ -89,6 +90,7 @@ export default function Home() {
 
       // 对齐表单字段（忽略 _comment / expected_zip_basename）
       setDisplayName(s("display_name"));
+      setExplicitIdentity(s("explicit_identity"));
       setSkillId(s("skill_id"));
       setVersion(s("version") || "1.0.0");
       setPurposeDescription(s("purpose_description"));
@@ -132,10 +134,18 @@ export default function Home() {
         setMessage({ type: "err", text: "请填写展示名称（用于生成 {slug}-skill.zip）" });
         return;
       }
+      if (!explicitIdentity.trim()) {
+        setMessage({
+          type: "err",
+          text: "请填写「身份明确」：写出具体身份（姓名/职位/组织/角色边界等），全文锚定于此；勿用泛指",
+        });
+        return;
+      }
       setLoading(true);
       try {
         const fd = new FormData();
         fd.set("display_name", displayName.trim());
+        fd.set("explicit_identity", explicitIdentity.trim());
         if (skillId.trim()) fd.set("skill_id", skillId.trim());
         fd.set("version", version.trim() || "1.0.0");
         fd.set("purpose_description", purposeDescription);
@@ -161,7 +171,7 @@ export default function Home() {
             if (f) fd.append("files", f, f.name);
           }
         }
-        const res = await fetch(`${API_BASE}/api/build-skill-zip`, {
+        const res = await fetch(apiUrl("/api/build-skill-zip"), {
           method: "POST",
           body: fd,
         });
@@ -194,6 +204,7 @@ export default function Home() {
     },
     [
       displayName,
+      explicitIdentity,
       skillId,
       version,
       purposeDescription,
@@ -222,7 +233,7 @@ export default function Home() {
       <h1>人员蒸馏 · 技能包生成</h1>
       <p className="lead">
         参数分区与生成包内 <code>SKILL.md</code> 章节对齐（YAML <code>name</code> / <code>description</code>、激活、路径
-        A/B、Agentic、身份卡、心智模型、启发式、表达 DNA、时间线等）。默认 API：<code>{API_BASE}</code>
+        A/B、Agentic、身份卡、心智模型、启发式、表达 DNA、时间线等）。API 基址（开发默认 8000，打包为同源空串）：<code>{getApiBase() || "（同源 / 同端口 8000）"}</code>
       </p>
 
       <form className="card" onSubmit={onSubmit}>
@@ -261,6 +272,18 @@ export default function Home() {
               placeholder="例：Trump-military-Demo"
               required
               autoComplete="off"
+            />
+          </label>
+          <label className="field">
+            <span>
+              身份明确 <span className="hint">（必填；具体身份，非泛指；本 skill 全流程锚定于此）</span>
+            </span>
+            <textarea
+              value={explicitIdentity}
+              onChange={(e) => setExplicitIdentity(e.target.value)}
+              rows={4}
+              required
+              placeholder="例：某某公司 · 高级后端工程师（Java/Spring），负责某业务域 API 与数据访问；对外口径为客户经理对接后的交付负责人，非匿名顾问。"
             />
           </label>
           <label className="field">
@@ -361,7 +384,10 @@ export default function Home() {
             />
           </label>
           <label className="field">
-            <span>聊天记录 / 沟通摘录（The Weave 等）</span>
+            <span>
+              聊天记录 / 沟通摘录（The Weave 等）{" "}
+              <span className="hint">（生成后集中在 SKILL.md 文末「聊天记录与沟通摘录」节，全文只出现一次）</span>
+            </span>
             <textarea
               value={chatRecords}
               onChange={(e) => setChatRecords(e.target.value)}

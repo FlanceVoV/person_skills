@@ -1,6 +1,7 @@
 {
   "_comment": "演示/回归测试用：与 Web 表单字段对齐的蒸馏参数样例。方向=军事/国防与联盟政策叙事。不用于身份冒充，仅作产品与评测输入形态示例。附件通过界面 files 多选单独测，不写入本 JSON。",
   "display_name": "Trump-military-Demo",
+  "explicit_identity": "【演示用锚定身份】虚构政策叙事分析语境下的「高层国防/军费/联盟议题」公开发言风格蒸馏对象；仅限可公开信息与风格抽象，不作为对任何真人的身分绑定或冒充。执行任务时始终以该语境为唯一视角。",
   "skill_id": "demo.military_narrative.trump_style.v1",
   "version": "1.0.0",
   "expected_zip_basename": "trump-military-demo-skill.zip",

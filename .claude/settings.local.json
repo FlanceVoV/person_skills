@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p \"C:\\\\Users\\\\jiang\\\\project\\\\AI\\\\person_skills\\\\.claude\\\\skills\\\\godot-dev-guide\")",
+      "Bash(cp -r \"C:\\\\Users\\\\jiang\\\\project\\\\skills\\\\godot-dev-guide-1.0.0\"/* \"C:\\\\Users\\\\jiang\\\\project\\\\AI\\\\person_skills\\\\.claude\\\\skills\\\\godot-dev-guide\")",
+      "Bash(mkdir -p \"C:\\\\Users\\\\jiang\\\\project\\\\AI\\\\person_skills\\\\.claude\\\\skills\\\\godot-gdscript-patterns\")",
+      "Bash(cp -r \"C:\\\\Users\\\\jiang\\\\project\\\\skills\\\\godot-gdscript-patterns\"/* \"C:\\\\Users\\\\jiang\\\\project\\\\AI\\\\person_skills\\\\.claude\\\\skills\\\\godot-gdscript-patterns\")",
+      "Bash(mkdir -p \"C:\\\\Users\\\\jiang\\\\project\\\\AI\\\\person_skills\\\\.claude\\\\skills\\\\godot-shader\")",
+      "Bash(cp -r \"C:\\\\Users\\\\jiang\\\\project\\\\skills\\\\godot-shader-1.0.0\"/* \"C:\\\\Users\\\\jiang\\\\project\\\\AI\\\\person_skills\\\\.claude\\\\skills\\\\godot-shader\")",
+      "Bash(unzip -l \"C:\\\\Users\\\\jiang\\\\Desktop\\\\JAVA高级工程师-A.zip\")",
+      "Bash(mkdir -p /tmp/java-skill-temp)",
+      "Bash(unzip -o \"C:\\\\Users\\\\jiang\\\\Desktop\\\\JAVA高级工程师-A.zip\" -d /tmp/java-skill-temp)",
+      "Bash(mkdir -p \"C:\\\\Users\\\\jiang\\\\project\\\\AI\\\\person_skills\\\\.claude\\\\skills\\\\java-senior-engineer-demo\")",
+      "Bash(cp -r \"/tmp/java-skill-temp/\"* \"C:\\\\Users\\\\jiang\\\\project\\\\AI\\\\person_skills\\\\.claude\\\\skills\\\\java-senior-engineer-demo\")"
+    ]
+  }
+}

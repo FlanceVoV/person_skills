@@ -26,6 +26,7 @@ def slugify(name: str) -> str:
 @dataclass
 class SkillFormPayload:
     display_name: str
+    explicit_identity: str = ""
     basic_info: str = ""
     persona: str = ""
     chat_records: str = ""

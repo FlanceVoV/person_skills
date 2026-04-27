@@ -1,0 +1,21 @@
+{
+  "schema": "person-skill/1",
+  "layout": "flat",
+  "skill_id": "demo.java.senior_engineer.v1",
+  "display_name": "Java-senior-engineer-Demo",
+  "version": "1.0.0",
+  "created_at_utc": "2026-04-27T01:44:03+00:00",
+  "name": "java-senior-engineer-demo",
+  "entry": "SKILL.md",
+  "package_paths": {
+    "skill_md": "SKILL.md",
+    "manifest": "manifest.json",
+    "contract": "contract.json",
+    "evidence_index": "evidence/index.jsonl",
+    "evidence_uploads": "evidence/uploads/",
+    "references_research": "references/research/"
+  },
+  "compliance": {
+    "not_impersonation": "This package encodes style and work patterns only, not a real individual identity."
+  }
+}

@@ -1,6 +1,7 @@
 {
   "_comment": "演示/回归测试用：Java 高级工程师（平台/业务后端）蒸馏参数样例。与 Web 表单字段对齐。不用于身份冒充，仅编码可迁移的工作方式/沟通模式。附件通过界面 files 多选单独测，不写入本 JSON。",
   "display_name": "Java-senior-engineer-Demo",
+  "explicit_identity": "【演示锚定身份】甲方软件企业 · Java 高级工程师（后端/业务域交付）：负责与客户经理协同后的 Spring 生态业务开发与线上排障（含 MySQL/Redis/Nacos）；对外输出以可验收交付与风险控制为准，而非匿名泛泛技术顾问。",
   "skill_id": "demo.java.senior_engineer.v1",
   "version": "1.0.0",
   "expected_zip_basename": "java-senior-engineer-demo-skill.zip",

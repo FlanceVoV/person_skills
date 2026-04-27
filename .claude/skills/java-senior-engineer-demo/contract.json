@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Skill: demo.java.senior_engineer.v1",
+  "type": "object",
+  "properties": {
+    "task": {
+      "type": "string",
+      "description": "User task to execute in this skill's style."
+    },
+    "context": {
+      "type": "string",
+      "description": "Optional context; never include secrets or PII in production."
+    }
+  },
+  "required": [
+    "task"
+  ],
+  "additionalProperties": false
+}
